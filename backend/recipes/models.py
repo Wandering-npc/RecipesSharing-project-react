@@ -38,7 +38,7 @@ class Ingredient(models.Model):
         blank=False,
         null=False,
     )
-    unit = models.CharField(
+    measurement_unit = models.CharField(
         verbose_name='е.и',
         max_length=245,
         blank=False,
@@ -80,7 +80,7 @@ class Recipe(models.Model):
         Tag,
         verbose_name='Теги',
     )
-    preparations_time = models.PositiveSmallIntegerField(
+    cooking_time = models.PositiveSmallIntegerField(
         'Время приготовления',
         validators=[
             MinValueValidator(
@@ -150,17 +150,17 @@ class Favorite(models.Model):
 
 
 
-class Basket(models.Model):
+class Shopping_cart(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='basket',
+        related_name='cart',
         verbose_name='Пользователь'
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='basket',
+        related_name='cart',
         verbose_name='Рецепт'
     )
 

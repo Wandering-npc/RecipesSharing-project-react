@@ -14,11 +14,3 @@ def validate_username(value):
             ('Не допустимые символы %(value)s в нике.'),
             params={'value': value},
         )
-
-
-def custom_year_validator(value):
-    if value > datetime.now().year:
-        raise ValidationError(
-            ('Год не может быть больше текущего %(value)s.'),
-            params={'value': value},
-        )

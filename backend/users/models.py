@@ -1,17 +1,10 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from validators import validate_username
 
 
 class User(AbstractUser):
-    ADMIN = 'admin'
-    MODERATOR = 'moderator'
-    USER = 'user'
-    ROLES = [
-        (ADMIN, 'admin'),
-        (MODERATOR, 'moderator'),
-        (USER, 'user'),
-    ]
 
     email = models.EmailField(
         max_length=254,
@@ -29,15 +22,15 @@ class User(AbstractUser):
         blank=False,
     )
     first_name = models.CharField(
-        verbose_name='Роль',
+        verbose_name='Имя',
         max_length=25,
-        choices=ROLES,
-        default=USER
+        null=False,
+        blank=False
     )
     last_name = models.TextField(
-        verbose_name='О себе',
-        null=True,
-        blank=True
+        verbose_name='Фамилия',
+        null=False,
+        blank=False
     )
 
     USERNAME_FIELD = 'email'
@@ -55,16 +48,28 @@ class User(AbstractUser):
             )
         ]
 
-    @property
-    def is_user(self):
-        return self.role == self.USER
 
-    @property
-    def is_moderator(self):
-        return self.role == self.MODERATOR
+class Follow(CreatedModel):
+    """Модель подписки."""
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='follower',
+        verbose_name='Подписчик'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='following',
+        verbose_name='Автор',
+    )
 
-    @property
-    def is_admin(self):
-        return self.role == self.ADMIN
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'author'], name='unique_follow'
+            )
+        ]
+
 
   
