@@ -20,6 +20,12 @@ class User(AbstractUser):
         null=False,
         unique=True,
         blank=False,
+    )  
+    password = models.CharField(
+        'Пароль',
+        max_length=150,
+        blank=False,
+        null=False,
     )
     first_name = models.CharField(
         verbose_name='Имя',
@@ -49,7 +55,18 @@ class User(AbstractUser):
         ]
 
 
-class Follow(CreatedModel):
+class CreatedModel(models.Model):
+    """Абстрактная модель. Добавляет дату создания."""
+    created = models.DateTimeField(
+        'Дата создания',
+        auto_now_add=True
+    )
+
+    class Meta:
+        abstract = True
+
+
+class Follow(CreatedModel.Model):
     """Модель подписки."""
     user = models.ForeignKey(
         User,
@@ -71,5 +88,3 @@ class Follow(CreatedModel):
             )
         ]
 
-
-  
