@@ -1,7 +1,6 @@
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from validators import validate_username
+from users.validators import validate_username
 
 
 class User(AbstractUser):
@@ -40,7 +39,10 @@ class User(AbstractUser):
     )
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    REQUIRED_FIELDS = ['username',
+                       'first_name',
+                       'last_name',
+    ]
 
     class Meta:
         ordering = ('id',)
@@ -55,18 +57,8 @@ class User(AbstractUser):
         ]
 
 
-class CreatedModel(models.Model):
-    """Абстрактная модель. Добавляет дату создания."""
-    created = models.DateTimeField(
-        'Дата создания',
-        auto_now_add=True
-    )
 
-    class Meta:
-        abstract = True
-
-
-class Follow(CreatedModel.Model):
+class Follow(models.Model):
     """Модель подписки."""
     user = models.ForeignKey(
         User,
