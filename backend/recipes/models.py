@@ -19,7 +19,7 @@ class Tag(models.Model):
         null=False,
     )
     slug = models.SlugField(
-        verbose_name='Slug',
+        verbose_name='Слаг',
         max_length=245,
         unique=True,
         blank=False,
@@ -27,6 +27,7 @@ class Tag(models.Model):
     )
     class Meta:
         verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
     def __str__(self):
         return self.name
 
@@ -74,7 +75,9 @@ class Recipe(models.Model):
     ingredients = models.ManyToManyField(
         Ingredient,
         through='RecipeIngredient',
+        through_fields=('recipe', 'ingredient'),
         verbose_name='Ингредиенты',
+
     )
     tags = models.ManyToManyField(
         Tag,
@@ -84,7 +87,7 @@ class Recipe(models.Model):
         'Время приготовления',
         validators=[
             MinValueValidator(
-                1, 'Время приготовления не должно быть меньше 1 минуты'
+                1, 'Время приготовления не может быть меньше 1 минуты'
             )
         ]
     )
