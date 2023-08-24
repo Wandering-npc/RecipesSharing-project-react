@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponse
 from djoser.views import UserViewSet
 from rest_framework.viewsets import ModelViewSet
-from api.serializers import TagSerializer, RecipeSerializer, RecipeCreateSerializer
+from api.serializers import TagSerializer, RecipeGetSerializer, RecipeCreateSerializer
 
 
 from recipes.models import Tag, Recipe
@@ -18,7 +18,7 @@ class TagViewSet(ModelViewSet):
 
 class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
-    serializer_class = RecipeSerializer
+    serializer_class = RecipeGetSerializer
 
     def get_queryset(self):
         recipes = Recipe.objects.prefetch_related('recipeingredients__ingredient',
@@ -29,7 +29,7 @@ class RecipeViewSet(ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'create':
             return RecipeCreateSerializer
-        return RecipeSerializer
+        return RecipeGetSerializer
     
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
