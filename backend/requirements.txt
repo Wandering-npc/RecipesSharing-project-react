@@ -5,7 +5,7 @@ djangorestframework==3.12.4
 djoser
 gunicorn==20.0.4
 pillow
-psycopg2-binary~=2.8.6
+psycopg2-binary==2.9.3 
 python-dotenv==1.0.0
 pytz==2020.1
 requests==2.26.0

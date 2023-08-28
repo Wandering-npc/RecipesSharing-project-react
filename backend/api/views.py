@@ -17,7 +17,7 @@ User = get_user_model()
 
 from recipes.models import Tag, Recipe, Ingredient, Shopping_cart, Favorite
 from users.models import Follow
-# Create your views here.
+
 def index(request):
     return HttpResponse('index')
 
@@ -56,10 +56,9 @@ class CustomUserViewSet(UserViewSet):
     def subscriptions(self, request):
         queryset = User.objects.filter(following__user=request.user)
         pages = self.paginate_queryset(queryset)
-        serializer = FollowSerializer(
-            pages,
-            many=True,
-            context={'request': request}
+        serializer = FollowSerializer(pages,
+                                      many=True,
+                                      context={'request': request}
         )
         return self.get_paginated_response(serializer.data)
     
