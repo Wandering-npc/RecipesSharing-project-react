@@ -3,7 +3,8 @@ from djoser.views import UserViewSet
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from api.serializers import (TagSerializer, RecipeGetSerializer, 
                              RecipeCreateSerializer, IngredientSerializer, 
-                             UserGetSerializer, FollowSerializer, RecipeSmallSerializer)
+                             UserGetSerializer, FollowSerializer, RecipeSmallSerializer,
+                             FavoriteSerializer, ShoppingCartSerializer)
 from django.contrib.auth import get_user_model
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
@@ -106,3 +107,22 @@ class RecipeViewSet(ModelViewSet):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         model.objects.filter(user=self.request.user, recipe=recipe).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    @action(
+        detail=True,
+        methods=['post', 'delete'],
+        permission_classes=[IsAuthenticated, ]
+    )
+    def favorite(self, request, pk):
+        """."""
+        return self.post_or_del(Favorite, pk, FavoriteSerializer)
+        
+
+    @action(
+        detail=True,
+        methods=['post', 'delete'],
+        permission_classes=[IsAuthenticated, ]
+    )
+    def shopping_cart(self, request, pk):
+        """."""
+        return (Shopping_cart, pk, ShoppingCartSerializer)
+
