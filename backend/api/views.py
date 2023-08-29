@@ -11,6 +11,8 @@ from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
+from api.filters import RecipeFilter
+from api.pagination import PageLimitPagination
 
 
 User = get_user_model()
@@ -51,7 +53,8 @@ class CustomUserViewSet(UserViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
     @action(
         detail=False,
-        permission_classes=[IsAuthenticated]
+        permission_classes=[IsAuthenticated],
+        pagination_class=PageLimitPagination
     )
     def subscriptions(self, request):
         queryset = User.objects.filter(following__user=request.user)
@@ -61,7 +64,16 @@ class CustomUserViewSet(UserViewSet):
                                       context={'request': request}
         )
         return self.get_paginated_response(serializer.data)
-    
+
+
+class FavoriteViewSet(ModelViewSet):
+    serializer_class = FavoriteSerializer
+
+    def get_queryset(self):
+        recipe_id = self.kwargs.get('recipe_id')
+        recipe = get_object_or_404(Recipe, id=recipe_id)
+        return recipe.favorite.all()   
+
 
 class TagViewSet(ModelViewSet):
     queryset = Tag.objects.all()
@@ -75,7 +87,7 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 
 class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
-
+    filterset_class = RecipeFilter
     def get_queryset(self):
         recipes = Recipe.objects.prefetch_related('recipeingredients__ingredient',
                                                    'tags'
@@ -124,4 +136,6 @@ class RecipeViewSet(ModelViewSet):
     def shopping_cart(self, request, pk):
         """."""
         return (Shopping_cart, pk, ShoppingCartSerializer)
+
+
 

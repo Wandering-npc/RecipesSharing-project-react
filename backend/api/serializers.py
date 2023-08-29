@@ -43,7 +43,11 @@ class UserSignupSerializer(UserCreateSerializer):
         fields = ('id', 'email', 'username', 'first_name',
                   'last_name', 'password')
     
-
+class RecipeSmallSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с краткой информацией о рецепте."""
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
        
 class FollowSerializer(UserGetSerializer):
     recipes = serializers.SerializerMethodField()
@@ -55,9 +59,11 @@ class FollowSerializer(UserGetSerializer):
                   'last_name', 'is_subscribed', 'recipes', 'recipes_count')
         
     def get_recipes_count(self, obj):
+        print(obj)
         return obj.recipes.count()
     
     def get_recipes(self, obj):
+        print('1')
         request = self.context.get('request')
         recipes_limit = None
         if request:
@@ -65,7 +71,7 @@ class FollowSerializer(UserGetSerializer):
         recipes = obj.recipes.all()
         if recipes_limit:
             recipes = recipes[:int(recipes_limit)]
-            serializer = 'RecipeShortSerializer'(recipes, many=True, read_only=True)
+            serializer = RecipeSmallSerializer(recipes, many=True, read_only=True)
             return serializer.data
 
 class TagSerializer(serializers.ModelSerializer):
@@ -140,10 +146,10 @@ class RecipeIngredientsCreateSerializer(serializers.ModelSerializer):
 class RecipeCreateSerializer(serializers.ModelSerializer):
     """."""
     ingredients = RecipeIngredientsCreateSerializer(many=True,)
-    #image = Base64ImageField() 
+    image = Base64ImageField() 
     class Meta:
         model = Recipe
-        fields = ('name', 'cooking_time', 'text', 'tags', 'ingredients',)
+        fields = ('name', 'cooking_time', 'text', 'tags', 'ingredients', 'image')
     
     def create_ingredients(self, ingredients, instance,):
         print(ingredients)
