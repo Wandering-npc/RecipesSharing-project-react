@@ -93,7 +93,7 @@ class RecipeSmallSerializer(serializers.ModelSerializer):
     """Сериализатор для работы с краткой информацией о рецепте."""
     class Meta:
         model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')
+        fields = ('id', 'name', 'cooking_time')
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
@@ -152,7 +152,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         fields = ('name', 'cooking_time', 'text', 'tags', 'ingredients', 'image')
     
     def create_ingredients(self, ingredients, instance,):
-        print(ingredients)
         RecipeIngredient.objects.bulk_create(
             [RecipeIngredient(
                 ingredient=get_object_or_404(Ingredient, id=ingredient_data['id']),

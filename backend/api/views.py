@@ -66,26 +66,30 @@ class CustomUserViewSet(UserViewSet):
         return self.get_paginated_response(serializer.data)
 
 
-class FavoriteViewSet(ModelViewSet):
-    serializer_class = FavoriteSerializer
+#class FavoriteViewSet(ModelViewSet):
+    #serializer_class = FavoriteSerializer
 
-    def get_queryset(self):
-        recipe_id = self.kwargs.get('recipe_id')
-        recipe = get_object_or_404(Recipe, id=recipe_id)
-        return recipe.favorite.all()   
+    #def get_queryset(self):
+        #print('0')
+        #recipe_id = self.kwargs.get('recipe_id')
+        #recipe = get_object_or_404(Recipe, id=recipe_id)
+        #return recipe.favorite.all()   
 
 
 class TagViewSet(ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    pagination_class = None
 
 class IngredientViewSet(ReadOnlyModelViewSet):
     """."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
+    pagination_class = None
 
 
 class RecipeViewSet(ModelViewSet):
+    print('1')
     queryset = Recipe.objects.all()
     filterset_class = RecipeFilter
     def get_queryset(self):
@@ -111,8 +115,8 @@ class RecipeViewSet(ModelViewSet):
         if self.request.method == 'POST':
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            serializer = RecipeSmallSerializer(recipe)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            get_serializer = RecipeSmallSerializer(recipe)
+            return Response(get_serializer.data, status=status.HTTP_201_CREATED)
         if not model.objects.filter(user=self.request.user,
                                      recipe=recipe).exists():
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -127,7 +131,6 @@ class RecipeViewSet(ModelViewSet):
         """."""
         return self.post_or_del(Favorite, pk, FavoriteSerializer)
         
-
     @action(
         detail=True,
         methods=['post', 'delete'],
@@ -135,7 +138,7 @@ class RecipeViewSet(ModelViewSet):
     )
     def shopping_cart(self, request, pk):
         """."""
-        return (Shopping_cart, pk, ShoppingCartSerializer)
+        return self.post_or_del(Shopping_cart, pk, ShoppingCartSerializer)
 
 
 
