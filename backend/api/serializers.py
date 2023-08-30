@@ -1,5 +1,5 @@
 import base64
-
+import pprint
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
@@ -44,7 +44,7 @@ class UserSignupSerializer(UserCreateSerializer):
                   'last_name', 'password')
     
 class RecipeSmallSerializer(serializers.ModelSerializer):
-    """Сериализатор для работы с краткой информацией о рецепте."""
+    """Сериализатор с сокращенной инфой по рецепту."""
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
@@ -55,12 +55,10 @@ class FollowSerializer(serializers.ModelSerializer):
         model = Follow
         fields = '__all__'
 
-    def create(self, validated_data):
-        author = validated_data.get('author')
-        user = validated_data.get('user')
-        return Follow.objects.create(user=user, author=author)
     def to_representation(self, instance):
         request = self.context.get('request')
+        instance_vars = vars(instance)
+        pprint.pprint(instance_vars)
         return FollowGetSerializer(
             instance.author, context={'request': request}
         ).data
@@ -76,11 +74,9 @@ class FollowGetSerializer(UserGetSerializer):
                   'last_name', 'is_subscribed', 'recipes', 'recipes_count')
         
     def get_recipes_count(self, obj):
-        print(obj)
         return obj.recipes.count()
     
     def get_recipes(self, obj):
-        print('get_recipes')
         request = self.context.get('request')
         recipes_limit = None
         if request:

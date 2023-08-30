@@ -32,13 +32,12 @@ class CustomUserViewSet(UserViewSet):
     def subscribe(self, request, id):
         user = request.user
         author = get_object_or_404(User, id=id)
-        print(author)
         if request.method == 'POST':
-            serializer = FollowSerializer(author,
-                                            data=request.data,
-                                            context={'request': request})
+            serializer = FollowSerializer(
+                data={'user': request.user.id, 'author': author.id},
+                context={'request': request})
             serializer.is_valid(raise_exception=True)
-            Follow.objects.create(user=user, author=author)
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         if request.method == 'DELETE':
             follow = Follow.objects.filter(user=user, author=author)
@@ -73,7 +72,6 @@ class FavoriteViewSet(ModelViewSet):
         recipe_id = self.kwargs.get('recipe_id')
         print('2')
         recipe = get_object_or_404(Recipe, id=recipe_id)
-        print('3')
         return recipe.favorite.all()   
 
 
@@ -91,7 +89,6 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 
 class RecipeViewSet(ModelViewSet):
     print('вьюсет рецептов')
-    queryset = Recipe.objects.all()
     filterset_class = RecipeFilter
     def get_queryset(self):
         recipes = Recipe.objects.prefetch_related('recipeingredients__ingredient',
