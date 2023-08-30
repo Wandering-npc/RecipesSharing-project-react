@@ -4,7 +4,7 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from api.serializers import (TagSerializer, RecipeGetSerializer, 
                              RecipeCreateSerializer, IngredientSerializer, 
                              UserGetSerializer, FollowSerializer, RecipeSmallSerializer,
-                             FavoriteSerializer, ShoppingCartSerializer)
+                             FavoriteSerializer, ShoppingCartSerializer, FollowGetSerializer)
 from django.contrib.auth import get_user_model
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
@@ -20,8 +20,6 @@ User = get_user_model()
 from recipes.models import Tag, Recipe, Ingredient, Shopping_cart, Favorite
 from users.models import Follow
 
-def index(request):
-    return HttpResponse('index')
 
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
@@ -30,10 +28,11 @@ class CustomUserViewSet(UserViewSet):
     @action(
         detail=True,
         methods=['POST', 'DELETE'],
-        permission_classes=[IsAuthenticated])
+        permission_classes=[IsAuthenticated],)
     def subscribe(self, request, id):
         user = request.user
         author = get_object_or_404(User, id=id)
+        print(author)
         if request.method == 'POST':
             serializer = FollowSerializer(author,
                                             data=request.data,
@@ -59,21 +58,23 @@ class CustomUserViewSet(UserViewSet):
     def subscriptions(self, request):
         queryset = User.objects.filter(following__user=request.user)
         pages = self.paginate_queryset(queryset)
-        serializer = FollowSerializer(pages,
+        serializer = FollowGetSerializer(pages,
                                       many=True,
                                       context={'request': request}
         )
         return self.get_paginated_response(serializer.data)
 
 
-#class FavoriteViewSet(ModelViewSet):
-    #serializer_class = FavoriteSerializer
+class FavoriteViewSet(ModelViewSet):
+    serializer_class = FavoriteSerializer
 
-    #def get_queryset(self):
-        #print('0')
-        #recipe_id = self.kwargs.get('recipe_id')
-        #recipe = get_object_or_404(Recipe, id=recipe_id)
-        #return recipe.favorite.all()   
+    def get_queryset(self):
+        print('0')
+        recipe_id = self.kwargs.get('recipe_id')
+        print('2')
+        recipe = get_object_or_404(Recipe, id=recipe_id)
+        print('3')
+        return recipe.favorite.all()   
 
 
 class TagViewSet(ModelViewSet):
@@ -89,7 +90,7 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 
 
 class RecipeViewSet(ModelViewSet):
-    print('1')
+    print('вьюсет рецептов')
     queryset = Recipe.objects.all()
     filterset_class = RecipeFilter
     def get_queryset(self):

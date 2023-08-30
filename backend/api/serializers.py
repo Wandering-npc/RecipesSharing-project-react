@@ -48,10 +48,27 @@ class RecipeSmallSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
-       
-class FollowSerializer(UserGetSerializer):
+
+class FollowSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Follow
+        fields = '__all__'
+
+    def create(self, validated_data):
+        author = validated_data.get('author')
+        user = validated_data.get('user')
+        return Follow.objects.create(user=user, author=author)
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        return FollowGetSerializer(
+            instance.author, context={'request': request}
+        ).data
+        
+class FollowGetSerializer(UserGetSerializer):
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -63,7 +80,7 @@ class FollowSerializer(UserGetSerializer):
         return obj.recipes.count()
     
     def get_recipes(self, obj):
-        print('1')
+        print('get_recipes')
         request = self.context.get('request')
         recipes_limit = None
         if request:
@@ -109,6 +126,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
 class RecipeGetSerializer(serializers.ModelSerializer):
     """."""
+    author = UserGetSerializer(read_only=True)
     tags = TagSerializer(many=True)
     ingredients = RecipeIngredientSerializer(many=True, 
                                              read_only=True, 
