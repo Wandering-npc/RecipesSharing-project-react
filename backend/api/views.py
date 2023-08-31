@@ -1,5 +1,6 @@
 from django.shortcuts import render, HttpResponse
 from djoser.views import UserViewSet
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from api.serializers import (TagSerializer, RecipeGetSerializer, 
                              RecipeCreateSerializer, IngredientSerializer, 
@@ -24,6 +25,7 @@ from users.models import Follow
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = UserGetSerializer
+    pagination_class=PageLimitPagination
 
     @action(
         detail=True,
@@ -49,10 +51,10 @@ class CustomUserViewSet(UserViewSet):
                                             author=author)
             follow.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
+        
     @action(
         detail=False,
         permission_classes=[IsAuthenticated],
-        pagination_class=PageLimitPagination
     )
     def subscriptions(self, request):
         queryset = User.objects.filter(following__user=request.user)
@@ -64,15 +66,15 @@ class CustomUserViewSet(UserViewSet):
         return self.get_paginated_response(serializer.data)
 
 
-class FavoriteViewSet(ModelViewSet):
-    serializer_class = FavoriteSerializer
+#class FavoriteViewSet(ModelViewSet):
+    #serializer_class = FavoriteSerializer
 
-    def get_queryset(self):
-        print('0')
-        recipe_id = self.kwargs.get('recipe_id')
-        print('2')
-        recipe = get_object_or_404(Recipe, id=recipe_id)
-        return recipe.favorite.all()   
+    #def get_queryset(self):
+        #print('0')
+        #recipe_id = self.kwargs.get('recipe_id')
+        #print('2')
+        #recipe = get_object_or_404(Recipe, id=recipe_id)
+        #return recipe.favorite.all()   
 
 
 class TagViewSet(ModelViewSet):
@@ -89,6 +91,7 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 
 class RecipeViewSet(ModelViewSet):
     print('вьюсет рецептов')
+    filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
     def get_queryset(self):
         recipes = Recipe.objects.prefetch_related('recipeingredients__ingredient',
