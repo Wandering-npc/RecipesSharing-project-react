@@ -43,12 +43,6 @@ class UserSignupSerializer(UserCreateSerializer):
         fields = ('id', 'email', 'username', 'first_name',
                   'last_name', 'password')
     
-class RecipeSmallSerializer(serializers.ModelSerializer):
-    """Сериализатор с сокращенной инфой по рецепту."""
-    class Meta:
-        model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')
-
 class FollowSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -66,7 +60,6 @@ class FollowSerializer(serializers.ModelSerializer):
 class FollowGetSerializer(UserGetSerializer):
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
-    #is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -78,13 +71,17 @@ class FollowGetSerializer(UserGetSerializer):
     
     def get_recipes(self, obj):
         request = self.context.get('request')
+        print('эта реквест', request)
         recipes_limit = None
         if request:
             recipes_limit = request.query_params.get('recipes_limit')
         recipes = obj.recipes.all()
+        print('эта руцепты', recipes)
         if recipes_limit:
             recipes = recipes[:int(recipes_limit)]
+            print('eta recipes 2', recipes)
             serializer = RecipeSmallSerializer(recipes, many=True, read_only=True)
+            print('эта сирик', serializer.data)
             return serializer.data
 
 class TagSerializer(serializers.ModelSerializer):
@@ -103,10 +100,10 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeSmallSerializer(serializers.ModelSerializer):
-    """Сериализатор для работы с краткой информацией о рецепте."""
+    """"""
     class Meta:
         model = Recipe
-        fields = ('id', 'name', 'cooking_time')
+        fields = ('id', 'name', 'cooking_time', 'image')
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):

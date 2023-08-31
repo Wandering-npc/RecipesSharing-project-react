@@ -1,4 +1,5 @@
 from django.shortcuts import render, HttpResponse
+from django.db.models import Sum
 from djoser.views import UserViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
@@ -18,14 +19,15 @@ from api.pagination import PageLimitPagination
 
 User = get_user_model()
 
-from recipes.models import Tag, Recipe, Ingredient, Shopping_cart, Favorite
+from recipes.models import (Tag, Recipe, Ingredient,
+                            Shopping_cart, Favorite, RecipeIngredient)
 from users.models import Follow
 
 
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = UserGetSerializer
-    pagination_class=PageLimitPagination
+    #pagination_class=PageLimitPagination
 
     @action(
         detail=True,
@@ -58,7 +60,9 @@ class CustomUserViewSet(UserViewSet):
     )
     def subscriptions(self, request):
         queryset = User.objects.filter(following__user=request.user)
+        print('queryset iz view', queryset)
         pages = self.paginate_queryset(queryset)
+        print('eta pages', pages)
         serializer = FollowGetSerializer(pages,
                                       many=True,
                                       context={'request': request}
@@ -140,6 +144,9 @@ class RecipeViewSet(ModelViewSet):
     def shopping_cart(self, request, pk):
         """."""
         return self.post_or_del(Shopping_cart, pk, ShoppingCartSerializer)
+    
+    def download_shopping_cart(self, request):
+        pass
 
 
 
