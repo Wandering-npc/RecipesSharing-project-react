@@ -28,6 +28,7 @@ class CustomUserViewSet(UserViewSet):
     """Джосер вьюсет для работы с пользователями."""
     queryset = User.objects.all()
     serializer_class = UserGetSerializer
+    permission_classes = [AuthorAdminOrReadOnly]
 
     @action(
         detail=True,
@@ -57,7 +58,7 @@ class CustomUserViewSet(UserViewSet):
         
     @action(
         detail=False,
-        permission_classes=[IsAuthenticated],
+        permission_classes=[AuthorAdminOrReadOnly],
     )
     def subscriptions(self, request):
         """Отображение подписок пользователя."""
@@ -83,11 +84,13 @@ class CustomUserViewSet(UserViewSet):
 
 class TagViewSet(ModelViewSet):
     """Вьюсет для  работы с тегами."""
+    permission_classes = [AuthorAdminOrReadOnly]
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
 
 class IngredientViewSet(ReadOnlyModelViewSet):
+    permission_classes = [AuthorAdminOrReadOnly]
     """Вьюсет для работы с ингредиентами."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
@@ -98,7 +101,7 @@ class RecipeViewSet(ModelViewSet):
     """Вьюсет для работы с рецептами."""
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [AuthorAdminOrReadOnly]
     def get_queryset(self):
         recipes = Recipe.objects.prefetch_related('recipeingredients__ingredient',
                                                    'tags'
@@ -133,7 +136,7 @@ class RecipeViewSet(ModelViewSet):
     @action(
         detail=True,
         methods=['POST', 'DELETE'],
-        permission_classes=[IsAuthenticated, ]
+        permission_classes=[IsAuthenticated]
     )
     def favorite(self, request, pk):
         """Метод для работы с избранными рецептами."""
@@ -142,7 +145,7 @@ class RecipeViewSet(ModelViewSet):
     @action(
         detail=True,
         methods=['POST', 'DELETE'],
-        permission_classes=[IsAuthenticated, ]
+        permission_classes=[IsAuthenticated]
     )
     def shopping_cart(self, request, pk):
         """Метод для работы с корзиной."""
