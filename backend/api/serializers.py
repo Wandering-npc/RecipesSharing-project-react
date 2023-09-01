@@ -20,7 +20,7 @@ class Base64ImageField(serializers.ImageField):
 
 
 class UserGetSerializer(UserSerializer):
-    """"""
+    """Гет сериализатор для работы с пользователями ."""
 
     is_subscribed = serializers.SerializerMethodField(read_only=True)
 
@@ -37,14 +37,14 @@ class UserGetSerializer(UserSerializer):
  
 
 class UserSignupSerializer(UserCreateSerializer):
-    """."""
+    """Создание пользователей."""
     class Meta:
         model = User
         fields = ('id', 'email', 'username', 'first_name',
                   'last_name', 'password')
     
 class FollowSerializer(serializers.ModelSerializer):
-
+    """Сер для пост подписок."""
     class Meta:
         model = Follow
         fields = '__all__'
@@ -56,8 +56,15 @@ class FollowSerializer(serializers.ModelSerializer):
         return FollowGetSerializer(
             instance.author, context={'request': request}
         ).data
-        
+
+class RecipeCutSerializer(serializers.ModelSerializer):
+    """Сер для краткой информации по рецепту"""
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'cooking_time', 'image')  
+     
 class FollowGetSerializer(UserGetSerializer):
+    """Сер для гет подписок."""
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
@@ -71,39 +78,28 @@ class FollowGetSerializer(UserGetSerializer):
     
     def get_recipes(self, obj):
         request = self.context.get('request')
-        print('эта реквест', request)
         recipes_limit = None
         if request:
             recipes_limit = request.query_params.get('recipes_limit')
         recipes = obj.recipes.all()
-        print('эта руцепты', recipes)
         if recipes_limit:
             recipes = recipes[:int(recipes_limit)]
-            print('eta recipes 2', recipes)
-            serializer = RecipeSmallSerializer(recipes, many=True, read_only=True)
-            print('эта сирик', serializer.data)
+            serializer = RecipeCutSerializer(recipes, many=True, read_only=True)
             return serializer.data
+
 
 class TagSerializer(serializers.ModelSerializer):
     """."""
-
     class Meta:
         model = Tag
         fields = '__all__'
 
+
 class IngredientSerializer(serializers.ModelSerializer):
     """."""
-
     class Meta:
         model = Ingredient
         fields = '__all__'
-
-
-class RecipeSmallSerializer(serializers.ModelSerializer):
-    """"""
-    class Meta:
-        model = Recipe
-        fields = ('id', 'name', 'cooking_time', 'image')
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
