@@ -24,7 +24,3 @@ class RecipeFilter(FilterSet):
         if self.request.user.is_authenticated and value:
             return queryset.filter(cart__user=self.request.user)
         return queryset
-
-
-#class IngredientFilter(filters.SearchFilter):
-    #search_param = 'name'

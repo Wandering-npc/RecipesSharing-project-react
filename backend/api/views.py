@@ -5,7 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
@@ -79,7 +79,10 @@ class CustomUserViewSet(UserViewSet):
         """Отображение подписок пользователя."""
         queryset = User.objects.filter(following__user=request.user)
         pages = self.paginate_queryset(queryset)
-        serializer = FollowGetSerializer(pages, many=True, context={"request": request})
+        serializer = FollowGetSerializer(
+            pages,
+            many=True,
+            context={"request": request})
         return self.get_paginated_response(serializer.data)
 
 
@@ -135,21 +138,27 @@ class RecipeViewSet(ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             get_serializer = RecipeCutSerializer(recipe)
-            return Response(get_serializer.data, status=status.HTTP_201_CREATED)
-        if not model.objects.filter(user=self.request.user, recipe=recipe).exists():
+            return Response(
+                get_serializer.data, status=status.HTTP_201_CREATED)
+        if not model.objects.filter(
+            user=self.request.user, recipe=recipe).exists():
             return Response(status=status.HTTP_400_BAD_REQUEST)
         model.objects.filter(user=self.request.user, recipe=recipe).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
-        detail=True, methods=["POST", "DELETE"], permission_classes=[IsAuthenticated]
+        detail=True,
+        methods=["POST", "DELETE"],
+        permission_classes=[IsAuthenticated]
     )
     def favorite(self, request, pk):
         """Метод для работы с избранными рецептами."""
         return self.post_or_del(Favorite, pk, FavoriteSerializer)
 
     @action(
-        detail=True, methods=["POST", "DELETE"], permission_classes=[IsAuthenticated]
+        detail=True,
+        methods=["POST", "DELETE"],
+        permission_classes=[IsAuthenticated]
     )
     def shopping_cart(self, request, pk):
         """Метод для работы с корзиной."""
