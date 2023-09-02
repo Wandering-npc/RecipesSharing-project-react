@@ -1,6 +1,6 @@
-from django_filters.rest_framework import filters, FilterSet
-
+from django_filters.rest_framework import FilterSet, filters
 from recipes.models import Recipe
+
 
 class RecipeFilter(FilterSet):
     is_favorited = filters.BooleanFilter(

@@ -79,4 +79,6 @@ class Follow(models.Model):
                 fields=['user', 'author'], name='unique_follow'
             )
         ]
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
 
