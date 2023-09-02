@@ -5,7 +5,11 @@ from users.models import User
 
 class Tag(models.Model):
     name = models.CharField(
-        verbose_name="Название", max_length=245, unique=True, blank=False, null=False
+        verbose_name="Название",
+        max_length=245,
+        unique=True,
+        blank=False,
+        null=False,
     )
     color = models.CharField(
         verbose_name="Цвет",
@@ -80,7 +84,8 @@ class Recipe(models.Model):
         verbose_name="Теги",
     )
     cooking_time = models.PositiveSmallIntegerField(
-        "Время приготовления", validators=[MinValueValidator(1, "Минимум 1 минута")]
+        "Время приготовления",
+        validators=[MinValueValidator(1, "Минимум 1 минута")],
     )
 
     class Meta:
@@ -141,10 +146,16 @@ class Favorite(models.Model):
 
 class Shopping_cart(models.Model):
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="cart", verbose_name="Пользователь"
+        User,
+        on_delete=models.CASCADE,
+        related_name="cart",
+        verbose_name="Пользователь",
     )
     recipe = models.ForeignKey(
-        Recipe, on_delete=models.CASCADE, related_name="cart", verbose_name="Рецепт"
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name="cart",
+        verbose_name="Рецепт",
     )
 
     class Meta:

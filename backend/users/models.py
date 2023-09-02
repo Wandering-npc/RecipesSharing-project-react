@@ -5,7 +5,11 @@ from users.validators import validate_username
 
 class User(AbstractUser):
     email = models.EmailField(
-        max_length=254, verbose_name="Эл. почта", unique=True, blank=False, null=False
+        max_length=254,
+        verbose_name="Эл. почта",
+        unique=True,
+        blank=False,
+        null=False
     )
     username = models.CharField(
         validators=(validate_username,),
@@ -24,7 +28,11 @@ class User(AbstractUser):
     first_name = models.CharField(
         verbose_name="Имя", max_length=25, null=False, blank=False
     )
-    last_name = models.TextField(verbose_name="Фамилия", null=False, blank=False)
+    last_name = models.TextField(
+        verbose_name="Фамилия",
+        null=False,
+        blank=False
+    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = [
@@ -40,7 +48,8 @@ class User(AbstractUser):
 
         constraints = [
             models.CheckConstraint(
-                check=~models.Q(username__iexact="me"), name="username_is_not_me"
+                check=~models.Q(username__iexact="me"),
+                name="username_is_not_me"
             )
         ]
 
@@ -63,7 +72,8 @@ class Follow(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["user", "author"], name="unique_follow")
+            models.UniqueConstraint(
+                fields=["user", "author"], name="unique_follow")
         ]
         verbose_name = "Подписка"
         verbose_name_plural = "Подписки"

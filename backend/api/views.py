@@ -141,7 +141,8 @@ class RecipeViewSet(ModelViewSet):
             return Response(
                 get_serializer.data, status=status.HTTP_201_CREATED)
         if not model.objects.filter(
-            user=self.request.user, recipe=recipe).exists():
+            user=self.request.user,
+            recipe=recipe).exists():
             return Response(status=status.HTTP_400_BAD_REQUEST)
         model.objects.filter(user=self.request.user, recipe=recipe).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
