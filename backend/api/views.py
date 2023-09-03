@@ -167,8 +167,8 @@ class RecipeViewSet(ModelViewSet):
 
     @action(
         detail=False,
-        url_path="download_shopping_cart",
-        url_name="download_shopping_cart",
+        methods=['GET'],
+        permission_classes=[IsAuthenticated],
     )
     def download_shopping_cart(self, request):
         """Отправка пользователю txt файла с необходимыми ингредиентами."""
