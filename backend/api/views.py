@@ -17,7 +17,6 @@ from recipes.models import (
     ShoppingCart,
     Tag,
 )
-from users.models import Follow
 from api.filters import RecipeFilter
 from api.permissions import AuthorOrReadOnly
 from api.serializers import (
