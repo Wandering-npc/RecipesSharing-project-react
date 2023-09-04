@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from users.models import Follow, User
 
 
@@ -8,6 +9,5 @@ class UserAdmin(admin.ModelAdmin):
     search_fields = ('username', 'email', 'first_name', 'last_name')
 
 
-@admin.register(Follow)
-class FollowAdmin(admin.ModelAdmin):
-    pass
+admin.site.register(Follow)
+

@@ -14,12 +14,12 @@ from recipes.models import (
     Ingredient,
     Recipe,
     RecipeIngredient,
-    Shopping_cart,
+    ShoppingCart,
     Tag,
 )
 from users.models import Follow
 from api.filters import RecipeFilter
-from api.permissions import AuthorAdminOrReadOnly
+from api.permissions import AuthorOrReadOnly
 from api.serializers import (
     FavoriteSerializer,
     FollowGetSerializer,
@@ -41,7 +41,7 @@ class CustomUserViewSet(UserViewSet):
 
     queryset = User.objects.all()
     serializer_class = UserGetSerializer
-    permission_classes = [AuthorAdminOrReadOnly]
+    permission_classes = [AuthorOrReadOnly]
 
     @action(
         detail=True,
@@ -54,22 +54,22 @@ class CustomUserViewSet(UserViewSet):
         author = get_object_or_404(User, id=id)
         if request.method == "POST":
             serializer = FollowSerializer(
-                data={"user": request.user.id, "author": author.id},
+                data={"user": user.id, "author": author.id},
                 context={"request": request},
             )
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         if request.method == "DELETE":
-            follow = Follow.objects.filter(user=user, author=author)
-            if not follow.exists():
-                return Response(
+            serializer = FollowSerializer(
+                data={"user": request.user.id, "author": author.id},
+                context={"request": request},)
+            if serializer.is_valid:
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(
                     {"errors": "Вы не подписаны на автора"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-            follow = get_object_or_404(Follow, user=user, author=author)
-            follow.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
         detail=False,
@@ -88,14 +88,14 @@ class CustomUserViewSet(UserViewSet):
 class TagViewSet(ModelViewSet):
     """Вьюсет для  работы с тегами."""
 
-    permission_classes = [AuthorAdminOrReadOnly]
+    permission_classes = [AuthorOrReadOnly]
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
 
 
 class IngredientViewSet(ReadOnlyModelViewSet):
-    permission_classes = [AuthorAdminOrReadOnly]
+    permission_classes = [AuthorOrReadOnly]
     """Вьюсет для работы с ингредиентами."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
@@ -107,13 +107,12 @@ class RecipeViewSet(ModelViewSet):
 
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter
-    permission_classes = [AuthorAdminOrReadOnly]
+    permission_classes = [AuthorOrReadOnly]
 
     def get_queryset(self):
-        recipes = Recipe.objects.prefetch_related(
+        return Recipe.objects.prefetch_related(
             "recipeingredients__ingredient", "tags"
         ).all()
-        return recipes
 
     def get_serializer_class(self):
         if self.action in ("list", "retrieve"):
@@ -163,8 +162,19 @@ class RecipeViewSet(ModelViewSet):
     )
     def shopping_cart(self, request, pk):
         """Метод для работы с корзиной."""
-        return self.post_or_del(Shopping_cart, pk, ShoppingCartSerializer)
-
+        return self.post_or_del(ShoppingCart, pk, ShoppingCartSerializer)
+    
+    def create_shopping_cart(self, ingredients):
+        shopping_cart = ["Список необходимых ингредиентов:"]
+        for ingredient in ingredients:
+            name = ingredient["ingredient__name"]
+            measurement_unit = ingredient["ingredient__measurement_unit"]
+            amount = ingredient["ingredient_sum"]
+            shopping_cart.append(f"\n{name} - {amount} {measurement_unit}")
+        response = HttpResponse(shopping_cart, content_type="text/plain")
+        response["Content-Disposition"] = "attachment;"
+        return response
+    
     @action(
         detail=False,
         methods=['GET'],
@@ -178,12 +188,5 @@ class RecipeViewSet(ModelViewSet):
             .order_by("ingredient__name")
             .annotate(ingredient_sum=Sum("amount"))
         )
-        shopping_cart = ["Список необходимых ингредиентов:"]
-        for ingredient in ingredients:
-            name = ingredient["ingredient__name"]
-            measurement_unit = ingredient["ingredient__measurement_unit"]
-            amount = ingredient["ingredient_sum"]
-            shopping_cart.append(f"\n{name} - {amount} {measurement_unit}")
-        response = HttpResponse(shopping_cart, content_type="text/plain")
-        response["Content-Disposition"] = "attachment;"
-        return response
+        return self.create_shopping_cart(ingredients)
+

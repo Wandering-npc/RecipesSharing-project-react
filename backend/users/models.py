@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+
 from users.validators import validate_username
 
 
@@ -8,16 +9,12 @@ class User(AbstractUser):
         max_length=254,
         verbose_name="Эл. почта",
         unique=True,
-        blank=False,
-        null=False
     )
     username = models.CharField(
         validators=(validate_username,),
         max_length=150,
         verbose_name="Имя пользователя",
-        null=False,
         unique=True,
-        blank=False,
     )
     password = models.CharField(
         "Пароль",
@@ -73,7 +70,13 @@ class Follow(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["user", "author"], name="unique_follow")
+                fields=["user", "author"],
+                name="unique_follow",
+                condition=models.Q(user=models.F("author")),
+            )
         ]
         verbose_name = "Подписка"
         verbose_name_plural = "Подписки"
+
+    def __str__(self):
+        return f'Пользователь {self.user.username} подписан на {self.author.username}'

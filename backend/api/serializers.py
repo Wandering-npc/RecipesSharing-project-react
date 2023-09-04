@@ -11,7 +11,7 @@ from recipes.models import (
     Ingredient,
     Recipe,
     RecipeIngredient,
-    Shopping_cart,
+    ShoppingCart,
     Tag,
 )
 
@@ -44,7 +44,7 @@ class UserGetSerializer(UserSerializer):
         )
 
     def get_is_subscribed(self, author):
-        """."""
+        """Проверка на наличие подписки."""
         request = self.context.get("request")
         return (
             request
@@ -63,12 +63,29 @@ class UserSignupSerializer(UserCreateSerializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
-    """Сер для пост подписок."""
+    """Сериализатор для пост подписок."""
 
     class Meta:
         model = Follow
         fields = "__all__"
 
+    def validate(self, data):
+        request = self.context.get("request")
+        if request.method == "POST":
+            return data
+        if request.method == "DELETE":
+            follow = Follow.objects.filter(
+                user=data.user,
+                author=data.author
+            )
+            if not follow.exists():
+                raise serializers.ValidationError(
+                    "Вы не подписаны на автора"
+                )
+            follow.delete()
+            return data
+
+       
     def to_representation(self, instance):
         request = self.context.get("request")
         return FollowGetSerializer(
@@ -76,7 +93,7 @@ class FollowSerializer(serializers.ModelSerializer):
 
 
 class RecipeCutSerializer(serializers.ModelSerializer):
-    """Сер для краткой информации по рецепту"""
+    """Сериализатор для краткой информации по рецепту"""
 
     class Meta:
         model = Recipe
@@ -84,7 +101,7 @@ class RecipeCutSerializer(serializers.ModelSerializer):
 
 
 class FollowGetSerializer(UserGetSerializer):
-    """Сер для гет подписок."""
+    """Сериализатор для гет подписок."""
 
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
@@ -112,14 +129,14 @@ class FollowGetSerializer(UserGetSerializer):
             recipes_limit = request.query_params.get("recipes_limit")
         recipes = obj.recipes.all()
         if recipes_limit:
-            recipes = recipes[: int(recipes_limit)]
+            recipes = recipes[:int(recipes_limit)]
             serializer = RecipeCutSerializer(
                 recipes, many=True, read_only=True)
             return serializer.data
 
 
 class TagSerializer(serializers.ModelSerializer):
-    """."""
+    """Сериализатор для работы с тегами."""
 
     class Meta:
         model = Tag
@@ -127,7 +144,7 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
-    """."""
+    """Сериализатор для работы с ингредиентами."""
 
     class Meta:
         model = Ingredient
@@ -135,7 +152,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
-    """."""
+    """Гет сериализатор для ингредиентов в рецептах."""
 
     id = serializers.ReadOnlyField(source="ingredient.id")
     name = serializers.CharField(source="ingredient.name")
@@ -148,7 +165,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeGetSerializer(serializers.ModelSerializer):
-    """."""
+    """Гет сериализатор для работы с рецептами."""
 
     author = UserGetSerializer(read_only=True)
     tags = TagSerializer(many=True)
@@ -160,15 +177,17 @@ class RecipeGetSerializer(serializers.ModelSerializer):
 
     def get_is_favorited(self, obj):
         user = self.context.get("request").user
-        if user.is_anonymous:
-            return False
-        return user.favorite.filter(recipe=obj).exists()
+        if user.is_authenticated:
+            return user.favorite.filter(recipe=obj).exists()
+        return False
+        
 
     def get_is_in_shopping_cart(self, obj):
         user = self.context.get("request").user
-        if user.is_anonymous:
-            return False
-        return user.cart.filter(recipe=obj).exists()
+        if user.is_authenticated:
+            return user.cart.filter(recipe=obj).exists()
+        return False
+        
 
     class Meta:
         model = Recipe
@@ -187,7 +206,7 @@ class RecipeGetSerializer(serializers.ModelSerializer):
 
 
 class RecipeIngredientsCreateSerializer(serializers.ModelSerializer):
-    """."""
+    """Пост сериализатор для ингредиентов."""
 
     id = serializers.IntegerField(write_only=True)
 
@@ -197,7 +216,7 @@ class RecipeIngredientsCreateSerializer(serializers.ModelSerializer):
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
-    """."""
+    """Сериализатор создания/редактирования рецепта."""
 
     ingredients = RecipeIngredientsCreateSerializer(
         many=True,
@@ -248,7 +267,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
-    """."""
+    """Сериализатор для работы с избранным."""
 
     class Meta:
         model = Favorite
@@ -256,8 +275,8 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
 
 class ShoppingCartSerializer(serializers.ModelSerializer):
-    """."""
+    """Сериализатор для работы с корзиной покупок."""
 
     class Meta:
-        model = Shopping_cart
+        model = ShoppingCart
         fields = "__all__"
