@@ -58,8 +58,14 @@ class UserSignupSerializer(UserCreateSerializer):
 
     class Meta:
         model = User
-        fields = ("id", "email", "username",
-                  "first_name", "last_name", "password")
+        fields = (
+            "id",
+            "email",
+            "username",
+            "first_name",
+            "last_name",
+            "password",
+        )
 
 
 class FollowSerializer(serializers.ModelSerializer):
@@ -74,22 +80,17 @@ class FollowSerializer(serializers.ModelSerializer):
         if request.method == "POST":
             return data
         if request.method == "DELETE":
-            follow = Follow.objects.filter(
-                user=data.user,
-                author=data.author
-            )
+            follow = Follow.objects.filter(user=data.user, author=data.author)
             if not follow.exists():
-                raise serializers.ValidationError(
-                    "Вы не подписаны на автора"
-                )
+                raise serializers.ValidationError("Вы не подписаны на автора")
             follow.delete()
             return data
 
-       
     def to_representation(self, instance):
         request = self.context.get("request")
         return FollowGetSerializer(
-            instance.author, context={"request": request}).data
+            instance.author, context={"request": request}
+        ).data
 
 
 class RecipeCutSerializer(serializers.ModelSerializer):
@@ -129,9 +130,10 @@ class FollowGetSerializer(UserGetSerializer):
             recipes_limit = request.query_params.get("recipes_limit")
         recipes = obj.recipes.all()
         if recipes_limit:
-            recipes = recipes[:int(recipes_limit)]
+            recipes = recipes[: int(recipes_limit)]
             serializer = RecipeCutSerializer(
-                recipes, many=True, read_only=True)
+                recipes, many=True, read_only=True
+            )
             return serializer.data
 
 
@@ -157,7 +159,8 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source="ingredient.id")
     name = serializers.CharField(source="ingredient.name")
     measurement_unit = serializers.CharField(
-        source="ingredient.measurement_unit")
+        source="ingredient.measurement_unit"
+    )
 
     class Meta:
         model = RecipeIngredient
@@ -180,14 +183,12 @@ class RecipeGetSerializer(serializers.ModelSerializer):
         if user.is_authenticated:
             return user.favorite.filter(recipe=obj).exists()
         return False
-        
 
     def get_is_in_shopping_cart(self, obj):
         user = self.context.get("request").user
         if user.is_authenticated:
             return user.cart.filter(recipe=obj).exists()
         return False
-        
 
     class Meta:
         model = Recipe
@@ -225,8 +226,14 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ("name", "cooking_time", "text",
-                  "tags", "ingredients", "image")
+        fields = (
+            "name",
+            "cooking_time",
+            "text",
+            "tags",
+            "ingredients",
+            "image",
+        )
 
     def create_ingredients(
         self,
@@ -237,8 +244,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             [
                 RecipeIngredient(
                     ingredient=get_object_or_404(
-                        Ingredient,
-                        id=ingredient_data["id"]),
+                        Ingredient, id=ingredient_data["id"]
+                    ),
                     recipe=instance,
                     amount=ingredient_data["amount"],
                 )

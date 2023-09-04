@@ -26,9 +26,7 @@ class User(AbstractUser):
         verbose_name="Имя", max_length=25, null=False, blank=False
     )
     last_name = models.TextField(
-        verbose_name="Фамилия",
-        null=False,
-        blank=False
+        verbose_name="Фамилия", null=False, blank=False
     )
 
     USERNAME_FIELD = "email"
@@ -46,7 +44,7 @@ class User(AbstractUser):
         constraints = [
             models.CheckConstraint(
                 check=~models.Q(username__iexact="me"),
-                name="username_is_not_me"
+                name="username_is_not_me",
             )
         ]
 
@@ -79,4 +77,4 @@ class Follow(models.Model):
         verbose_name_plural = "Подписки"
 
     def __str__(self):
-        return f'Пользователь {self.user.username} подписан на {self.author.username}'
+        return f"Пользователь {self.user.username} подписан на {self.author.username}"

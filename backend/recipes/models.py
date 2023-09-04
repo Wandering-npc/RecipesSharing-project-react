@@ -84,8 +84,8 @@ class Recipe(models.Model):
         "Время приготовления",
         validators=[
             MinValueValidator(1, "Минимум 1 минута"),
-            MaxValueValidator(60*24, "Максимум 24 часа"),
-        ],        
+            MaxValueValidator(60 * 24, "Максимум 24 часа"),
+        ],
     )
 
     class Meta:

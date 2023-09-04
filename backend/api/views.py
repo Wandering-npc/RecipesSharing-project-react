@@ -63,13 +63,14 @@ class CustomUserViewSet(UserViewSet):
         if request.method == "DELETE":
             serializer = FollowSerializer(
                 data={"user": request.user.id, "author": author.id},
-                context={"request": request},)
+                context={"request": request},
+            )
             if serializer.is_valid:
                 return Response(status=status.HTTP_204_NO_CONTENT)
             return Response(
-                    {"errors": "Вы не подписаны на автора"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+                {"errors": "Вы не подписаны на автора"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
     @action(
         detail=False,
@@ -163,7 +164,7 @@ class RecipeViewSet(ModelViewSet):
     def shopping_cart(self, request, pk):
         """Метод для работы с корзиной."""
         return self.post_or_del(ShoppingCart, pk, ShoppingCartSerializer)
-    
+
     def create_shopping_cart(self, ingredients):
         shopping_cart = ["Список необходимых ингредиентов:"]
         for ingredient in ingredients:
@@ -174,10 +175,10 @@ class RecipeViewSet(ModelViewSet):
         response = HttpResponse(shopping_cart, content_type="text/plain")
         response["Content-Disposition"] = "attachment;"
         return response
-    
+
     @action(
         detail=False,
-        methods=['GET'],
+        methods=["GET"],
         permission_classes=[IsAuthenticated],
     )
     def download_shopping_cart(self, request):
@@ -189,4 +190,3 @@ class RecipeViewSet(ModelViewSet):
             .annotate(ingredient_sum=Sum("amount"))
         )
         return self.create_shopping_cart(ingredients)
-

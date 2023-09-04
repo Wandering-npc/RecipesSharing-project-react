@@ -10,4 +10,3 @@ class UserAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Follow)
-
