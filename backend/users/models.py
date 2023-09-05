@@ -26,6 +26,7 @@ class User(AbstractUser):
     )
     last_name = models.CharField(
         verbose_name="Фамилия",
+        max_length=25,
     )
 
     USERNAME_FIELD = "email"
