@@ -2,12 +2,12 @@ version: '3.3'
 
 volumes:
   pg_data:
-  static:
-  media:
+  static_volume:
+  static_media:
 
 services:
   db:
-    image: postgres:13
+    image: postgres:13.10
     env_file: .env
     volumes:
       - pg_data:/var/lib/postgresql/data
@@ -31,4 +31,4 @@ services:
       - static_volume:/static/
       - static_media:/app/media
     ports:
-      - 8000:80
+      - 80:80
