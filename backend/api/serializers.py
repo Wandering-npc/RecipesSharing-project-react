@@ -130,7 +130,7 @@ class FollowGetSerializer(UserGetSerializer):
             recipes_limit = request.query_params.get("recipes_limit")
         recipes = obj.recipes.all()
         if recipes_limit:
-            recipes = recipes[: int(recipes_limit)]
+            recipes = recipes[:int(recipes_limit)]
             serializer = RecipeCutSerializer(
                 recipes, many=True, read_only=True
             )

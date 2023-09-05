@@ -10,6 +10,8 @@ collected_static/
 .collected_static
 .media/
 media/
+backend/collected_static/
+backend/media/
 # Distribution / packaging
 .Python
 build/

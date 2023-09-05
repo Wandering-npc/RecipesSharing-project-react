@@ -19,14 +19,13 @@ class User(AbstractUser):
     password = models.CharField(
         "Пароль",
         max_length=150,
-        blank=False,
-        null=False,
     )
     first_name = models.CharField(
-        verbose_name="Имя", max_length=25, null=False, blank=False
+        verbose_name="Имя",
+        max_length=25,
     )
-    last_name = models.TextField(
-        verbose_name="Фамилия", null=False, blank=False
+    last_name = models.CharField(
+        verbose_name="Фамилия",
     )
 
     USERNAME_FIELD = "email"
@@ -70,8 +69,11 @@ class Follow(models.Model):
             models.UniqueConstraint(
                 fields=["user", "author"],
                 name="unique_follow",
-                condition=models.Q(user=models.F("author")),
-            )
+            ),
+            models.CheckConstraint(
+                check=~models.Q(author=models.F("user")), 
+                name="user_is_not_author"
+            ),
         ]
         verbose_name = "Подписка"
         verbose_name_plural = "Подписки"

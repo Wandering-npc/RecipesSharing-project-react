@@ -1,6 +1,7 @@
 import re
 
 from django.core.exceptions import ValidationError
+from django.contrib.auth.validators import UnicodeUsernameValidator
 
 
 def validate_username(value):
@@ -8,8 +9,5 @@ def validate_username(value):
         raise ValidationError(
             'Имя пользователя не может быть <me>.',
         )
-    if re.search(r'^[a-zA-Z][a-zA-Z0-9-_\.]{1,20}$', value) is None:
-        raise ValidationError(
-            ('Не допустимые символы %(value)s в нике.'),
-            params={'value': value},
-        )
+    validator = UnicodeUsernameValidator()
+    validator(value)
