@@ -1,5 +1,3 @@
-import re
-
 from django.core.exceptions import ValidationError
 from django.contrib.auth.validators import UnicodeUsernameValidator
 
