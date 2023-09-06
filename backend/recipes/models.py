@@ -4,20 +4,28 @@ from django.db import models
 from users.models import User
 
 
+MAX_LENGTH_FOR_ANY_NAME = 245
+MAX_LENGTH_FOR_COLOR = 7
+MIN_OF_COOKING = 1
+MAX_OF_COOKING = 60 * 24
+MIN_AMOUNT = 1
+MAX_AMOUNT = 99999
+
+
 class Tag(models.Model):
     name = models.CharField(
         verbose_name="Название",
-        max_length=245,
+        max_length=MAX_LENGTH_FOR_ANY_NAME,
         unique=True,
     )
     color = models.CharField(
         verbose_name="Цвет",
-        max_length=7,
+        max_length=MAX_LENGTH_FOR_COLOR,
         unique=True,
     )
     slug = models.SlugField(
         verbose_name="Слаг",
-        max_length=245,
+        max_length=MAX_LENGTH_FOR_ANY_NAME,
         unique=True,
     )
 
@@ -32,11 +40,11 @@ class Tag(models.Model):
 class Ingredient(models.Model):
     name = models.CharField(
         verbose_name="Название",
-        max_length=100,
+        max_length=MAX_LENGTH_FOR_ANY_NAME,
     )
     measurement_unit = models.CharField(
         verbose_name="е.и",
-        max_length=245,
+        max_length=MAX_LENGTH_FOR_ANY_NAME,
     )
 
     class Meta:
@@ -62,7 +70,7 @@ class Recipe(models.Model):
     )
     name = models.CharField(
         verbose_name="Название",
-        max_length=245,
+        max_length=MAX_LENGTH_FOR_ANY_NAME,
     )
     image = models.ImageField(
         verbose_name="Картинка",
@@ -83,8 +91,8 @@ class Recipe(models.Model):
     cooking_time = models.PositiveSmallIntegerField(
         "Время приготовления",
         validators=[
-            MinValueValidator(1, "Минимум 1 минута"),
-            MaxValueValidator(60 * 24, "Максимум 24 часа"),
+            MinValueValidator(MIN_OF_COOKING, "Минимум 1 минута"),
+            MaxValueValidator(MAX_OF_COOKING, "Максимум 24 часа"),
         ],
     )
 
@@ -113,8 +121,8 @@ class RecipeIngredient(models.Model):
     amount = models.PositiveSmallIntegerField(
         "Количество",
         validators=[
-            MinValueValidator(1, "Минимум 1"),
-            MaxValueValidator(999, "Максимум 999 единиц")]
+            MinValueValidator(MIN_AMOUNT, "Минимум 1"),
+            MaxValueValidator(MAX_AMOUNT, "Максимум 99999 единиц")]
     )
 
     class Meta:

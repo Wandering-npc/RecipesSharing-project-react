@@ -1,32 +1,38 @@
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 
 from users.validators import validate_username
 
 
+MAX_LENGTH_FOR_ANY_NAME = 25
+MAX_LENGTH_FOR_EMAIL = 254
+MAX_LENGTH_FOR_PASSWORD = 150
+
+
 class User(AbstractUser):
     email = models.EmailField(
-        max_length=254,
+        max_length=MAX_LENGTH_FOR_EMAIL,
         verbose_name="Эл. почта",
         unique=True,
     )
     username = models.CharField(
-        validators=(validate_username,),
-        max_length=150,
+        validators=(validate_username, UnicodeUsernameValidator),
+        max_length=MAX_LENGTH_FOR_ANY_NAME,
         verbose_name="Имя пользователя",
         unique=True,
     )
     password = models.CharField(
         "Пароль",
-        max_length=150,
+        max_length=MAX_LENGTH_FOR_PASSWORD,
     )
     first_name = models.CharField(
         verbose_name="Имя",
-        max_length=25,
+        max_length=MAX_LENGTH_FOR_ANY_NAME,
     )
     last_name = models.CharField(
         verbose_name="Фамилия",
-        max_length=25,
+        max_length=MAX_LENGTH_FOR_ANY_NAME,
     )
 
     USERNAME_FIELD = "email"
