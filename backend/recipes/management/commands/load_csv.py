@@ -11,14 +11,13 @@ DATA_ROOT = os.path.join(settings.BASE_DIR, 'data')
 
 
 class Command(BaseCommand):
-    help = '''Загрузка ингредиентов в базу.'''
+    help = 'Загрузка ингредиентов в базу.'
 
     def handle(self, *args, **options):
         with open(os.path.join(DATA_ROOT, options['filename']),
                   'r', encoding='utf-8') as file:
             reader_data = csv.reader(file)
-            for row in reader_data:
-                name, measurement_unit = row
+            for name, measurement_unit in reader_data:
                 Ingredient.objects.get_or_create(
                     name=name,
                     measurement_unit=measurement_unit

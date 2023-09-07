@@ -122,8 +122,8 @@ class RecipeViewSet(ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    def post_or_del(self, model, pk, serializer):
-        """Добавление и удаление экземпляров модели Favorite/Shopping_cart."""
+    def post_model(self, pk, serializer):
+        """Добавление экземпляров модели Favorite/Shopping_cart."""
         recipe = get_object_or_404(Recipe, id=pk)
         serializer = serializer(
             data={
@@ -132,20 +132,30 @@ class RecipeViewSet(ModelViewSet):
             },
             context={"request": self.request},
         )
-        if self.request.method == "POST":
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            get_serializer = RecipeCutSerializer(recipe)
-            return Response(
-                get_serializer.data, status=status.HTTP_201_CREATED
-            )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        get_serializer = RecipeCutSerializer(recipe)
+        return Response(
+            get_serializer.data, status=status.HTTP_201_CREATED
+        )
+        
+    def delete_model(self, model, pk, serializer):
+        """Удаление экземпляров модели Favorite/Shopping_cart."""
+        recipe = get_object_or_404(Recipe, id=pk)
+        serializer = serializer(
+            data={
+                "user": self.request.user.id,
+                "recipe": recipe.id,
+            },
+            context={"request": self.request},
+        )
         if not model.objects.filter(
             user=self.request.user, recipe=recipe
         ).exists():
             return Response(status=status.HTTP_400_BAD_REQUEST)
         model.objects.filter(user=self.request.user, recipe=recipe).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
+    
     @action(
         detail=True,
         methods=["POST", "DELETE"],
