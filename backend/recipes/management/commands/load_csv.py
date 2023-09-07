@@ -1,19 +1,21 @@
 import csv
 import os
-from django.conf import settings
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from recipes.models import Ingredient
 
+
 DATA_ROOT = os.path.join(settings.BASE_DIR, 'data')
+
 
 class Command(BaseCommand):
     help = '''Загрузка ингредиентов в базу.'''
 
     def handle(self, *args, **options):
         with open(os.path.join(DATA_ROOT, options['filename']),
-                      'r', encoding='utf-8') as file:
+                  'r', encoding='utf-8') as file:
             reader_data = csv.reader(file)
             for row in reader_data:
                 name, measurement_unit = row
