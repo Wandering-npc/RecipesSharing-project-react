@@ -4,6 +4,7 @@ from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 from users.models import Follow, User
 from recipes.models import (
@@ -74,17 +75,20 @@ class FollowSerializer(serializers.ModelSerializer):
     class Meta:
         model = Follow
         fields = "__all__"
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Follow.objects.all(),
+                fields=('user', 'author'),
+                message='Уже подписаны на автора'
+            )
+        ]
 
     def validate(self, data):
-        request = self.context.get("request")
-        if request.method == "POST":
-            return data
-        if request.method == "DELETE":
-            follow = Follow.objects.filter(user=data.user, author=data.author)
-            if not follow.exists():
-                raise serializers.ValidationError("Вы не подписаны на автора")
-            follow.delete()
-            return data
+        if data.user == data.author:
+            raise serializers.ValidationError(
+                'Нельзя подписаться дважды'
+            )
+        return data
 
     def to_representation(self, instance):
         request = self.context.get("request")

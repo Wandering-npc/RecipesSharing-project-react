@@ -17,6 +17,7 @@ from recipes.models import (
     ShoppingCart,
     Tag,
 )
+from users.models import Follow
 from api.filters import RecipeFilter
 from api.permissions import AuthorOrReadOnly
 from api.serializers import (
@@ -44,32 +45,25 @@ class CustomUserViewSet(UserViewSet):
 
     @action(
         detail=True,
-        methods=["POST", "DELETE"],
+        methods=["POST"],
         permission_classes=[IsAuthenticated],
     )
     def subscribe(self, request, id):
         """Подписка и отписка от авторов."""
-        user = request.user
         author = get_object_or_404(User, id=id)
-        if request.method == "POST":
-            serializer = FollowSerializer(
-                data={"user": user.id, "author": author.id},
-                context={"request": request},
-            )
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        if request.method == "DELETE":
-            serializer = FollowSerializer(
-                data={"user": request.user.id, "author": author.id},
-                context={"request": request},
-            )
-            if serializer.is_valid:
-                return Response(status=status.HTTP_204_NO_CONTENT)
-            return Response(
-                {"errors": "Вы не подписаны на автора"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        serializer = FollowSerializer(
+            data={"user": request.user.id, "author": author.id},
+            context={"request": request},
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @subscribe.mapping.delete
+    def unsubscribe(self, request, id):
+        author = get_object_or_404(User, id=id)
+        get_object_or_404(Follow, user=request.user, author=author).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
         detail=False,
@@ -138,7 +132,7 @@ class RecipeViewSet(ModelViewSet):
         return Response(
             get_serializer.data, status=status.HTTP_201_CREATED
         )
-        
+
     def delete_model(self, model, pk, serializer):
         """Удаление экземпляров модели Favorite/Shopping_cart."""
         recipe = get_object_or_404(Recipe, id=pk)
@@ -155,24 +149,34 @@ class RecipeViewSet(ModelViewSet):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         model.objects.filter(user=self.request.user, recipe=recipe).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
-    @action(
-        detail=True,
-        methods=["POST", "DELETE"],
-        permission_classes=[IsAuthenticated],
-    )
-    def favorite(self, request, pk):
-        """Метод для работы с избранными рецептами."""
-        return self.post_or_del(Favorite, pk, FavoriteSerializer)
 
     @action(
         detail=True,
-        methods=["POST", "DELETE"],
+        methods=["POST"],
+        permission_classes=[IsAuthenticated],
+    )
+    def favorite(self, request, pk):
+        """Метод для добавления избранного."""
+        return self.post_model(pk, FavoriteSerializer)
+
+    @favorite.mapping.delete
+    def delete_favorite(self, request, pk):
+        """Метод для удаления из избранного."""
+        return self.delete_model(Favorite, pk, FavoriteSerializer)
+
+    @action(
+        detail=True,
+        methods=["POST"],
         permission_classes=[IsAuthenticated],
     )
     def shopping_cart(self, request, pk):
-        """Метод для работы с корзиной."""
-        return self.post_or_del(ShoppingCart, pk, ShoppingCartSerializer)
+        """Метод для добавления в корзину."""
+        return self.post_model(pk, ShoppingCartSerializer)
+
+    @shopping_cart.mapping.delete
+    def delete_shopping_cart(self, request, pk):
+        """Метод для удаления из корзины."""
+        return self.delete_model(ShoppingCart, pk, ShoppingCartSerializer)
 
     def create_shopping_cart(self, ingredients):
         shopping_cart = ["Список необходимых ингредиентов:"]
