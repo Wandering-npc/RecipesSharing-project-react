@@ -132,7 +132,7 @@ class RecipeViewSet(ModelViewSet):
             get_serializer.data, status=status.HTTP_201_CREATED
         )
 
-    def delete_model(self, model, pk, serializer):
+    def delete_model(self, model, pk):
         """Удаление экземпляров модели Favorite/Shopping_cart."""
         get_object_or_404(model,
             user=self.request.user, recipe_id=pk).delete()
