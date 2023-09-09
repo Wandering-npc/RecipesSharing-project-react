@@ -78,15 +78,15 @@ class FollowSerializer(serializers.ModelSerializer):
         validators = [
             UniqueTogetherValidator(
                 queryset=Follow.objects.all(),
-                fields=('user', 'author'),
-                message='Уже подписаны на автора'
+                fields=("user", "author"),
+                message="Уже подписаны на автора"
             )
         ]
 
     def validate(self, data):
         if data.user == data.author:
             raise serializers.ValidationError(
-                'Нельзя подписаться дважды'
+                "Нельзя подписаться дважды"
             )
         return data
 

@@ -4,15 +4,16 @@ from pathlib import Path
 from django.core.management.utils import get_random_secret_key
 from dotenv import load_dotenv
 
+
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv("SECRET_KEY", get_random_secret_key())
 
-DEBUG = os.getenv('DEBUG', '').lower() == 'true'
+DEBUG = os.getenv("DEBUG", "").lower() == "true"
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -61,23 +62,15 @@ TEMPLATES = [
 WSGI_APPLICATION = "foodgram.wsgi.application"
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB', 'django'),
-        'USER': os.getenv('POSTGRES_USER', 'django'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
-        'HOST': os.getenv('DB_HOST', ''),
-        'PORT': os.getenv('DB_PORT', 5432)
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("POSTGRES_DB", "django"),
+        "USER": os.getenv("POSTGRES_USER", "django"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),
+        "HOST": os.getenv("DB_HOST", ""),
+        "PORT": os.getenv("DB_PORT", 5432),
     }
 }
-# 'default': {
-# 'ENGINE': 'django.db.backends.postgresql',
-# 'NAME': os.getenv('POSTGRES_DB', 'django'),
-# 'USER': os.getenv('POSTGRES_USER', 'django'),
-# 'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
-# 'HOST': os.getenv('DB_HOST', ''),
-# 'PORT': os.getenv('DB_PORT', 5432)
-# }
 
 AUTH_USER_MODEL = "users.User"
 
@@ -119,10 +112,10 @@ USE_L10N = True
 
 USE_TZ = True
 
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'collected_static'
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "collected_static"
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = '/app/media/'
+MEDIA_URL = "/media/"
+MEDIA_ROOT = "/app/media/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

@@ -61,8 +61,7 @@ class CustomUserViewSet(UserViewSet):
 
     @subscribe.mapping.delete
     def unsubscribe(self, request, id):
-        author = get_object_or_404(User, id=id)
-        get_object_or_404(Follow, user=request.user, author=author).delete()
+        get_object_or_404(Follow, user=request.user, author_id=id).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
@@ -135,21 +134,9 @@ class RecipeViewSet(ModelViewSet):
 
     def delete_model(self, model, pk, serializer):
         """Удаление экземпляров модели Favorite/Shopping_cart."""
-        recipe = get_object_or_404(Recipe, id=pk)
-        serializer = serializer(
-            data={
-                "user": self.request.user.id,
-                "recipe": recipe.id,
-            },
-            context={"request": self.request},
-        )
-        if not model.objects.filter(
-            user=self.request.user, recipe=recipe
-        ).exists():
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        model.objects.filter(user=self.request.user, recipe=recipe).delete()
+        get_object_or_404(model,
+            user=self.request.user, recipe_id=pk).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
     @action(
         detail=True,
         methods=["POST"],
@@ -162,7 +149,7 @@ class RecipeViewSet(ModelViewSet):
     @favorite.mapping.delete
     def delete_favorite(self, request, pk):
         """Метод для удаления из избранного."""
-        return self.delete_model(Favorite, pk, FavoriteSerializer)
+        return self.delete_model(Favorite, pk)
 
     @action(
         detail=True,
@@ -176,7 +163,7 @@ class RecipeViewSet(ModelViewSet):
     @shopping_cart.mapping.delete
     def delete_shopping_cart(self, request, pk):
         """Метод для удаления из корзины."""
-        return self.delete_model(ShoppingCart, pk, ShoppingCartSerializer)
+        return self.delete_model(ShoppingCart, pk)
 
     def create_shopping_cart(self, ingredients):
         shopping_cart = ["Список необходимых ингредиентов:"]
