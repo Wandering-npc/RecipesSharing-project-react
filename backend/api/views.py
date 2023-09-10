@@ -134,9 +134,12 @@ class RecipeViewSet(ModelViewSet):
 
     def delete_model(self, model, pk):
         """Удаление экземпляров модели Favorite/Shopping_cart."""
-        get_object_or_404(model,
-            user=self.request.user, recipe_id=pk).delete()
+        get_object_or_404(
+            model,
+            user=self.request.user,
+            recipe_id=pk).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
     @action(
         detail=True,
         methods=["POST"],
