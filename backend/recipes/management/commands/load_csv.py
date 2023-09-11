@@ -14,7 +14,7 @@ class Command(BaseCommand):
     help = 'Загрузка ингредиентов в базу.'
 
     def handle(self, *args, **options):
-        with open(os.path.join(DATA_ROOT, options['ingredients']),
+        with open(os.path.join(DATA_ROOT, options['filename']),
                   'r', encoding='utf-8') as file:
             reader_data = csv.reader(file)
             for name, measurement_unit in reader_data:
