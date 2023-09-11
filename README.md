@@ -1,3 +1,4 @@
-# praktikum_new_diplom
+# Foodgram
 Сайт http://myhost.servebeer.com/
+
 Админ: a@a.ru admin
