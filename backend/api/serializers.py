@@ -257,7 +257,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 for ingredient_data in ingredients
             ]
         )
-    
+
     def validate(self, data):
         inrgedients_ids = [ing["id"] for ing in data.get("ingredients")]
         unique_inrgedients_ids = set(inrgedients_ids)
