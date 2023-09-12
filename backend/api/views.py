@@ -18,7 +18,7 @@ from recipes.models import (
     Tag,
 )
 from users.models import Follow
-from api.filters import RecipeFilter
+from api.filters import RecipeFilter, IngredientsFilter
 from api.permissions import AuthorOrReadOnly
 from api.serializers import (
     FavoriteSerializer,
@@ -93,6 +93,8 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = IngredientsFilter
 
 
 class RecipeViewSet(ModelViewSet):
