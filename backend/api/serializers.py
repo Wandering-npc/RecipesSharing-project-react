@@ -258,15 +258,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             ]
         )
 
-    def validate(self, data):
-        inrgedients_ids = [ing["id"] for ing in data.get("ingredients")]
-        unique_inrgedients_ids = set(inrgedients_ids)
-        if len(unique_inrgedients_ids) != len(inrgedients_ids):
-            raise serializers.ValidationError(
-                "Ингредиенты повторяются"
-            )
-        return data
-
     def create(self, validated_data):
         ingredients = validated_data.pop("ingredients")
         instance = super().create(validated_data)
