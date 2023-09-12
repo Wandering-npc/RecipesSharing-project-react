@@ -1,10 +1,11 @@
+from django.contrib.auth.admin import UserAdmin
 from django.contrib import admin
 
 from users.models import Follow, User
 
 
 @admin.register(User)
-class UserAdmin(admin.ModelAdmin):
+class CustomUserAdmin(UserAdmin):
     list_filter = ("username", "email")
     search_fields = ("username", "email", "first_name", "last_name")
     list_display = (
