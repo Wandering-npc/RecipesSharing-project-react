@@ -13,7 +13,7 @@
 1. Склонируйте репозиторий 
 
 ```bash
-git clone git@github.com:Wandering-npc/foodgram-project-react.git
+git clone git@github.com:Wandering-npc/RecipesSharing-project-react.git
 ```
 
 2. Создайте в корне проекта .env файл (пример файла указан в репозитории)
